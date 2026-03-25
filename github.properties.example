@@ -1,0 +1,31 @@
+# Скопируй в github.properties (файл в .gitignore) или задай переменные окружения GPR_USER / GPR_TOKEN.
+# Токен: GitHub → Settings → Developer settings → PAT с правами read:packages (потребители) и write:packages (публикация).
+
+gpr.user=YOUR_GITHUB_USERNAME
+gpr.key=ghp_your_personal_access_token
+
+# --- Потребитель приложения ---
+#
+# 1) В ~/.gradle/gradle.properties (или gradle.properties проекта, не коммитить секреты):
+#    gpr.user=ВАШ_GITHUB_LOGIN
+#    gpr.key=ghp_...   # PAT с read:packages
+#
+# 2) settings.gradle.kts:
+#    dependencyResolutionManagement {
+#        repositories {
+#            google()
+#            mavenCentral()
+#            maven {
+#                url = uri("https://maven.pkg.github.com/1111andGRocks/AdsSDK-Android")
+#                credentials {
+#                    username = providers.gradleProperty("gpr.user").get()
+#                    password = providers.gradleProperty("gpr.key").get()
+#                }
+#            }
+#        }
+#    }
+#
+# 3) build.gradle.kts (app):
+#    implementation("com.grocks.ads:grocks-ads:0.1.0")
+#
+# У GitHub Packages для Maven обычно нужен токен с read:packages даже для публичного репо.
