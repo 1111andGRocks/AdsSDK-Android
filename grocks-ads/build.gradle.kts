@@ -3,6 +3,16 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.vanniktech.maven.publish")
+    signing
+}
+
+// Если нет secring / signingInMemoryKey в свойствах — подпись через локальный gpg (агент / ключ по умолчанию).
+signing {
+    val keyRing = findProperty("signing.secretKeyRingFile")?.toString()?.trim().orEmpty().isNotEmpty()
+    val inMemory = findProperty("signingInMemoryKey")?.toString()?.trim().orEmpty().isNotEmpty()
+    if (!keyRing && !inMemory) {
+        useGpgCmd()
+    }
 }
 
 val mavenGroup = findProperty("grocksAds.mavenGroup")?.toString() ?: "com.grocks.ads"

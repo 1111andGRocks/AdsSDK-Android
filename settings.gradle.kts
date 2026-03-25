@@ -1,19 +1,5 @@
 import java.util.Properties
 
-gradle.beforeProject {
-    if (project.name != "grocks-ads") return@beforeProject
-    val f = settings.rootDir.resolve("central-publishing.properties")
-    if (!f.exists()) return@beforeProject
-    val p = Properties()
-    f.inputStream().use { p.load(it) }
-    p.forEach { k, v ->
-        val key = k.toString()
-        if (project.findProperty(key) == null) {
-            project.extensions.extraProperties.set(key, v.toString())
-        }
-    }
-}
-
 pluginManagement {
     repositories {
         google()
@@ -25,7 +11,7 @@ pluginManagement {
         id("com.android.library") version "8.7.2"
         id("org.jetbrains.kotlin.android") version "2.0.21"
         id("org.jetbrains.kotlin.plugin.compose") version "2.0.21"
-        id("com.vanniktech.maven.publish") version "0.29.0"
+        id("com.vanniktech.maven.publish") version "0.34.0"
     }
 }
 
@@ -54,3 +40,4 @@ include(":example")
 if (hasLocalSdkSources) {
     include(":grocks-ads")
 }
+

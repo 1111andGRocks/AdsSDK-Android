@@ -13,19 +13,59 @@ mavenCentralPassword=token_password_из_портала
 #
 # === 3) GPG подпись артефактов (обязательно для release) ===
 # https://central.sonatype.org/publish/requirements/gpg/
-# Вариант A — файл ключа:
+#
+# Откуда ключ: его генерируешь ТЫ на своём Mac (пара ключей: секретный остаётся у тебя, публичный — на keyserver).
+# Создать «за тебя» удалённо нельзя: приватный ключ нельзя безопасно передавать через чат/репозиторий.
+#
+# Минимум один раз в терминале:
+#   brew install gnupg
+#   gpg --full-generate-key
+#   → тип: RSA and RSA; размер 4096; срок без ограничения (0); имя и email (лучше как в Sonatype/GitHub); надёжный пароль.
+# Узнать id ключа (последние 8–16 символов из строки sec):
+#   gpg --list-secret-keys --keyid-format LONG
+# Выложить ПУБЛИЧНЫЙ ключ (требование Central):
+#   gpg --keyserver keys.openpgp.org --send-keys YOUR_KEY_ID
+# Проверка, что подпись с ключом работает (спросит пароль, если ключ защищён):
+#   echo test | gpg --armor --local-user YOUR_KEY_ID --sign > /dev/null
+#
+# Вариант 0 (удобно на Mac): после генерации ключа — достаточно установленного gnupg и gpg-agent с паролем.
+# В grocks-ads/build.gradle включён useGpgCmd(), если НЕ заданы signing.secretKeyRingFile и signingInMemoryKey —
+# отдельные строки signing ниже не нужны. Если gpg не в PATH: signing.gnupg.executable=/opt/homebrew/bin/gpg
+#
+# Вариант A — ключ в файле (если есть secring.gpg или экспорт в .gpg):
 #signing.keyId=ABCD1234
 #signing.password=пароль_от_ключа
 #signing.secretKeyRingFile=/Users/you/.gnupg/secring.gpg
 #
-# Вариант B — CI: см. ORG_GRADLE_PROJECT_signingInMemoryKey в доке плагина:
-# https://vanniktech.github.io/gradle-maven-publish-plugin/central/
+# Вариант B — современный GnuPG на Mac (часто нет secring.gpg): ключ в памяти
+#   gpg --export-secret-keys --armor YOUR_KEY_ID
+# Скопируй тело ключа в одну строку (без -----BEGIN/END----- и без переносов строк),
+# в файле:
+#signingInMemoryKey=....armored-key-body-one-line....
+#signingInMemoryKeyId=ABCD1234
+#signingInMemoryKeyPassword=пароль_от_ключа
+#
+# Дока плагина: https://vanniktech.github.io/gradle-maven-publish-plugin/central/
 #
 # === 4) Публикация (с машины, где есть исходники grocks-ads/) ===
-#   ./gradlew :grocks-ads:publishToMavenCentral
+# Нужен JDK 17+ (если в терминале «Unable to locate a Java Runtime»):
+#   brew install openjdk@17 && export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+# Через скрипт (рекомендуется — подставляет секреты в ORG_GRADLE_PROJECT_* для Gradle):
+#   chmod +x publish-to-maven-central.sh
+#   ./publish-to-maven-central.sh :grocks-ads:publishToMavenCentral
+# Или вручную: те же ключи в ~/.gradle/gradle.properties либо -P mavenCentralUsername=...
 #
 # При automaticRelease=true (в grocks-ads/build.gradle.kts) задача сама доводит релиз до Central
 # после валидации Sonatype. Появление на https://repo1.maven.org может занять 10–30 минут.
 #
-# Если Central Portal выдаст ошибку совместимости, позже можно обновить AGP/Gradle и плагин
-# com.vanniktech.maven.publish до актуальной версии с поддержкой Central Portal API.
+# Плагин com.vanniktech.maven.publish 0.34+ публикует через Central Portal (старый OSSRH отключён Sonatype).
+#
+# Если gpg: signing failed: Inappropriate ioctl for device — Gradle запускает gpg без TTY.
+# Скрипт publish-to-maven-central.sh выставляет GPG_TTY и добавляет --no-daemon.
+# Дополнительно на Mac поставь GUI pinentry (часто решает без TTY):
+#   brew install pinentry-mac
+# В ~/.gnupg/gpg-agent.conf:
+#   pinentry-program /opt/homebrew/bin/pinentry-mac
+#   default-cache-ttl 600
+# Затем: gpgconf --kill gpg-agent
+# Либо уйти от интерактивного gpg: вариант B выше (signingInMemoryKey в этом файле).
