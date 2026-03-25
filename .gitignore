@@ -12,3 +12,8 @@ captures/
 .cxx
 .kotlin/
 *.hprof
+
+# SDK — только у мейнтейнера на диске; в публичный git не попадает (аналог iOS Sources/).
+grocks-ads/src/main/java/
+grocks-ads/src/main/assets/
+grocks-ads/src/main/res/
