@@ -1,27 +1,13 @@
-import java.util.Properties
-
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
-    id("maven-publish")
+    id("com.vanniktech.maven.publish")
 }
 
+val mavenGroup = findProperty("grocksAds.mavenGroup")?.toString() ?: "com.grocks.ads"
+val mavenArtifact = findProperty("grocksAds.mavenArtifact")?.toString() ?: "grocks-ads"
 val sdkVersion = findProperty("grocksAds.sdkVersion")?.toString() ?: "0.1.0"
-val githubOwner = findProperty("grocksAds.github.owner")?.toString() ?: "1111andGRocks"
-val githubRepo = findProperty("grocksAds.github.repo")?.toString() ?: "AdsSDK-Android"
-
-fun loadGithubProperties(): Properties {
-    val p = Properties()
-    val f = rootProject.file("github.properties")
-    if (f.exists()) {
-        f.inputStream().use { p.load(it) }
-    }
-    return p
-}
-
-fun githubProp(name: String, gh: Properties): String? =
-    gh.getProperty(name)?.takeIf { it.isNotBlank() }
 
 android {
     namespace = "com.grocks.ads"
@@ -54,12 +40,6 @@ android {
     buildFeatures {
         compose = true
     }
-
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-        }
-    }
 }
 
 dependencies {
@@ -75,48 +55,33 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
 }
 
-afterEvaluate {
-    val gh = loadGithubProperties()
-    val gprUser =
-        githubProp("gpr.user", gh)
-            ?: findProperty("gpr.user")?.toString()
-            ?: System.getenv("GPR_USER")
-            ?: System.getenv("GITHUB_ACTOR")
-    val gprKey =
-        githubProp("gpr.key", gh)
-            ?: findProperty("gpr.key")?.toString()
-            ?: System.getenv("GPR_TOKEN")
-            ?: System.getenv("GITHUB_TOKEN")
-
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                groupId = "com.grocks.ads"
-                artifactId = "grocks-ads"
-                version = sdkVersion
-                from(components["release"])
-                pom {
-                    name.set("GrocksAds")
-                    description.set("Grocks Ads Android SDK (WebView mediation UI).")
-                    url.set("https://github.com/$githubOwner/$githubRepo")
-                    licenses {
-                        license {
-                            name.set("The Apache License, Version 2.0")
-                            url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                        }
-                    }
-                }
+mavenPublishing {
+    coordinates(mavenGroup, mavenArtifact, sdkVersion)
+    publishToMavenCentral(automaticRelease = true)
+    signAllPublications()
+    pom {
+        name.set("GrocksAds")
+        description.set("Grocks Ads Android SDK (WebView mediation UI).")
+        inceptionYear.set("2026")
+        url.set("https://github.com/1111andGRocks/AdsSDK-Android")
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                distribution.set("repo")
             }
         }
-        repositories {
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/$githubOwner/$githubRepo")
-                credentials {
-                    username = gprUser ?: ""
-                    password = gprKey ?: ""
-                }
+        developers {
+            developer {
+                id.set("1111andGRocks")
+                name.set("1111andGRocks")
+                url.set("https://github.com/1111andGRocks/")
             }
+        }
+        scm {
+            url.set("https://github.com/1111andGRocks/AdsSDK-Android")
+            connection.set("scm:git:git://github.com/1111andGRocks/AdsSDK-Android.git")
+            developerConnection.set("scm:git:ssh://git@github.com/1111andGRocks/AdsSDK-Android.git")
         }
     }
 }

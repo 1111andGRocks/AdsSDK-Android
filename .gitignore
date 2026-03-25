@@ -3,6 +3,7 @@
 **/build/
 local.properties
 github.properties
+central-publishing.properties
 .idea/
 .DS_Store
 captures/

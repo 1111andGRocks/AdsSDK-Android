@@ -37,6 +37,8 @@ android {
 }
 
 val grocksSdkVersion = findProperty("grocksAds.sdkVersion")?.toString() ?: "0.1.0"
+val grocksMavenGroup = findProperty("grocksAds.mavenGroup")?.toString() ?: "com.grocks.ads"
+val grocksMavenArtifact = findProperty("grocksAds.mavenArtifact")?.toString() ?: "grocks-ads"
 val useLocalSdk =
     rootProject.projectDir
         .resolve("grocks-ads/src/main/java/com/grocks/ads/GrocksAds.kt")
@@ -46,7 +48,7 @@ dependencies {
     if (useLocalSdk) {
         implementation(project(":grocks-ads"))
     } else {
-        implementation("com.grocks.ads:grocks-ads:$grocksSdkVersion")
+        implementation("$grocksMavenGroup:$grocksMavenArtifact:$grocksSdkVersion")
     }
     implementation(platform("androidx.compose:compose-bom:2024.10.01"))
     implementation("androidx.compose.ui:ui")

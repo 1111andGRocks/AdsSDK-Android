@@ -1,0 +1,31 @@
+# Скопируй в central-publishing.properties (в .gitignore) ИЛИ перенеси строки в ~/.gradle/gradle.properties
+#
+# === 1) Регистрация в Maven Central (один раз) ===
+# https://central.sonatype.com/ — создай namespace (часто io.github.1111andgrocks в нижнем регистре).
+# Если одобрят только io.github.*, в корневом gradle.properties поменяй:
+#   grocksAds.mavenGroup=io.github.1111andgrocks
+# и сделай то же у интеграторов в implementation("...")
+#
+# === 2) Токен Central Portal (не пароль от сайта) ===
+# https://central.sonatype.org/publish/generate-portal-token/
+mavenCentralUsername=token_username_из_портала
+mavenCentralPassword=token_password_из_портала
+#
+# === 3) GPG подпись артефактов (обязательно для release) ===
+# https://central.sonatype.org/publish/requirements/gpg/
+# Вариант A — файл ключа:
+#signing.keyId=ABCD1234
+#signing.password=пароль_от_ключа
+#signing.secretKeyRingFile=/Users/you/.gnupg/secring.gpg
+#
+# Вариант B — CI: см. ORG_GRADLE_PROJECT_signingInMemoryKey в доке плагина:
+# https://vanniktech.github.io/gradle-maven-publish-plugin/central/
+#
+# === 4) Публикация (с машины, где есть исходники grocks-ads/) ===
+#   ./gradlew :grocks-ads:publishToMavenCentral
+#
+# При automaticRelease=true (в grocks-ads/build.gradle.kts) задача сама доводит релиз до Central
+# после валидации Sonatype. Появление на https://repo1.maven.org может занять 10–30 минут.
+#
+# Если Central Portal выдаст ошибку совместимости, позже можно обновить AGP/Gradle и плагин
+# com.vanniktech.maven.publish до актуальной версии с поддержкой Central Portal API.

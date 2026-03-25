@@ -1,12 +1,3 @@
-# Скопируй в github.properties (в .gitignore).
+# GitHub Packages больше не используется — зависимость для приложений: mavenCentral().
 #
-# --- Потребитель (клон без исходников SDK) ---
-# Нужен PAT с read:packages, иначе Gradle не скачает AAR с GitHub Packages.
-gpr.user=YOUR_GITHUB_USERNAME
-gpr.key=ghp_your_personal_access_token
-#
-# --- Мейнтейнер (публикация AAR с машины, где есть полная папка grocks-ads/src/...) ---
-# Тот же файл: gpr.key с write:packages. Команда:
-#   ./gradlew :grocks-ads:publishReleasePublicationToGitHubPackagesRepository
-#
-# Исходники Kotlin/PDF/res не коммитятся в публичный репозиторий — только у тебя локально.
+# Секреты для публикации в Maven Central: см. central-publishing.properties.example
